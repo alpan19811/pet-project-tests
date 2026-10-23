@@ -1,0 +1,63 @@
+name: CI Tests
+
+# Триггер: запускать при каждом пуше в ветку main или master
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    # Используем Linux-раннер: он быстрее и дешевле в минутах GitHub, чем Windows
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Скачиваем код репозитория
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Устанавливаем нужную версию Python
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # 3. Кэшируем зависимости pip (Senior-приём: ускоряет прогон на 30-50%)
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      # 4. Устанавливаем зависимости из requirements.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # 5. Устанавливаем браузеры Playwright И системные зависимости Linux
+      # (Без install-deps браузеры на Linux не запустятся из-за нехватки библиотек)
+      - name: Install Playwright browsers
+        run: |
+          playwright install
+          playwright install-deps
+
+      # 6. Запускаем API тесты и сохраняем результаты в папку allure-results
+      - name: Run API Tests
+        run: pytest tests/api -v --alluredir=allure-results
+
+      # 7. Запускаем UI тесты (в headless режиме, как настроено в .env по умолчанию)
+      - name: Run UI Tests
+        run: pytest tests/ui -v --alluredir=allureRequirements
+
+      # 8. Сохраняем папку с результатами Allure как артефакт сборки
+      - name: Upload Allure results
+        if: always() # Сохранять артефакт даже если тесты упали (чтобы посмотреть, почему)
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-${{ github.run_number }}
+          path: allure-results/
+          retention-days: 7
