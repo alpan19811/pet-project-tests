@@ -11,21 +11,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Скачиваем код репозитория
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Собираем Docker-образ и запускаем тесты
-      # --build: заставляет пересобрать образ, если изменился Dockerfile или код
-      # --abort-on-container-exit: останавливает всё, как только контейнер с тестами завершится
       - name: Run tests in Docker
         run: docker compose up --build --abort-on-container-exit
 
-      # 3. Сохраняем результаты Allure (они проброшены через volumes в docker-compose.yml)
       - name: Upload Allure results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: allure-results-docker-ci
           path: allure-results/
+          retention-days: 7
+
+      # Новый шаг: загрузка скриншотов при падении визуальных тестов
+      - name: Upload failed screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failed-screenshots
+          path: screenshots/
           retention-days: 7

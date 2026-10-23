@@ -8,3 +8,4 @@ python-dotenv==1.0.1
 locust==2.31.5
 faker
 pytest-xdist
+responses

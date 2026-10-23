@@ -1,4 +1,5 @@
 import allure
+from playwright.sync_api import expect
 from pages.todo_page import TodoPage
 
 
@@ -11,13 +12,10 @@ def test_homepage_visual_regression(page):
     with allure.step("Открыть главную страницу"):
         todo_page.open_todo_page()
 
-    with allure.step("Сделать скриншот и сравнить с эталоном"):
-        # Playwright автоматически сравнит скриншот с baseline-изображением
-        # Если baseline не существует - он будет создан при первом запуске
-        page.screenshot(path="screenshots/homepage.png")
-        # Альтернатива: использовать expect для автоматической проверки
-        # from playwright.sync_api import expect
-        # expect(page).to_have_screenshot()
+    with allure.step("Сравнить скриншот с эталоном (baseline)"):
+        # Playwright сам создаст эталон при первом запуске.
+        # При следующих запусках он сравнит пиксели и упадёт, если есть отличия.
+        expect(page).to_have_screenshot("homepage.png")
 
 
 @allure.feature("Визуальное регрессионное тестирование")
@@ -30,18 +28,5 @@ def test_add_todo_visual_regression(page):
         todo_page.open_todo_page()
         todo_page.add_todo("Визуальный тест")
 
-    with allure.step("Сделать скриншот списка задач"):
-        page.screenshot(path="screenshots/todo_list_with_item.png")
-
-
-@allure.feature("Визуальное регрессионное тестирование")
-@allure.story("Проверка скриншотов пустого списка")
-def test_empty_todo_list_visual_regression(page):
-    """Проверяем, что пустой список выглядит корректно."""
-    todo_page = TodoPage(page)
-
-    with allure.step("Открыть страницу (список должен быть пустым)"):
-        todo_page.open_todo_page()
-
-    with allure.step("Сделать скриншот пустого списка"):
-        page.screenshot(path="screenshots/empty_todo_list.png")
+    with allure.step("Сравнить скриншот списка задач с эталоном"):
+        expect(page).to_have_screenshot("todo_list_with_item.png")
