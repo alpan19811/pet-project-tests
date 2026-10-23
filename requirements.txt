@@ -6,3 +6,4 @@ allure-pytest==2.13.5
 pydantic-settings==2.6.0
 python-dotenv==1.0.1
 locust==2.31.5
+faker
