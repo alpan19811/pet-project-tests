@@ -3,8 +3,9 @@ services:
     build: .
     container_name: pet-project-tests
     volumes:
-      # Монтируем папку с результатами Allure на хост-машину
+      # Результаты Allure
       - ./allure-results:/app/allure-results
+      # Скриншоты для визуального тестирования
+      - ./screenshots:/app/screenshots
     environment:
-      # Передаём переменные окружения из .env (если нужно)
       - HEADLESS=true

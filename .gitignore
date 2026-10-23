@@ -5,3 +5,7 @@ __pycache__/
 .pytest_cache/
 allure-results/
 allure-report/
+
+# Временные скриншоты при падениях
+test-results/
+playwright-report/
