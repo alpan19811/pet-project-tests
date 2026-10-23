@@ -1,0 +1,12 @@
+# Исключаем из сборки контейнера
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+allure-results/
+allure-report/
+.idea/
+.vscode/
+.git/
+.env
+*.md
